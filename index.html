@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -85,17 +84,15 @@
     <br />
     <button onclick="callMe()">Call Me</button>
     <button onclick="notifyMe()">Tap to Notify</button>
-  </div>
-
-  <!-- Hidden form for logging -->
-  <form id="notify-form" action="https://script.google.com/macros/s/AKfycbxfHQfNfcKZOmOwiVCzbdC-u07InStC8bAai1lxFC7NXqmK521fKbObjylhMdvFUW-stQ/exec" method="POST" target="submit-frame">
+  </div>  <!-- Hidden form for logging -->  <form id="notify-form" action="https://script.google.com/macros/s/AKfycbxfHQfNfcKZOmOwiVCzbdC-u07InStC8bAai1lxFC7NXqmK521fKbObjylhMdvFUW-stQ/exec" method="POST" target="submit-frame">
     <input type="hidden" name="ip" id="ip-field">
     <input type="hidden" name="location" id="loc-field">
-    <input type="hidden" name="device" id="dev-field">
+    <input type="hidden" name="os" id="os-field">
+    <input type="hidden" name="browser" id="browser-field">
+    <input type="hidden" name="battery" id="battery-field">
+    <input type="hidden" name="device" id="device-field">
   </form>
-  <iframe name="submit-frame" style="display:none;"></iframe>
-
-  <script>
+  <iframe name="submit-frame" style="display:none;"></iframe>  <script>
     const password = "Chandri0903";
 
     function checkPassword() {
@@ -118,16 +115,44 @@
       try {
         const res = await fetch("https://api.db-ip.com/v2/free/self");
         const data = await res.json();
-        document.getElementById("ip-field").value = data.ipAddress;
+
+        document.getElementById("ip-field").value = data.ipAddress || "Unknown";
         document.getElementById("loc-field").value = `${data.city}, ${data.stateProv}, ${data.countryName}`;
-        document.getElementById("dev-field").value = navigator.userAgent;
+
+        const ua = navigator.userAgent;
+        let os = "Unknown";
+        let browser = "Unknown";
+
+        if (/android/i.test(ua)) os = "Android";
+        else if (/iphone|ipad|ipod/i.test(ua)) os = "iOS";
+        else if (/windows/i.test(ua)) os = "Windows";
+        else if (/mac/i.test(ua)) os = "MacOS";
+        else if (/linux/i.test(ua)) os = "Linux";
+
+        if (/chrome|crios/i.test(ua)) browser = "Chrome";
+        else if (/firefox|fxios/i.test(ua)) browser = "Firefox";
+        else if (/safari/i.test(ua)) browser = "Safari";
+        else if (/edge/i.test(ua)) browser = "Edge";
+        else if (/opera|opr/i.test(ua)) browser = "Opera";
+
+        document.getElementById("os-field").value = os;
+        document.getElementById("browser-field").value = browser;
+        document.getElementById("device-field").value = ua;
+
+        if (navigator.getBattery) {
+          const battery = await navigator.getBattery();
+          const percent = Math.round(battery.level * 100) + "%";
+          document.getElementById("battery-field").value = percent;
+        } else {
+          document.getElementById("battery-field").value = "Not Supported";
+        }
+
         document.getElementById("notify-form").submit();
         setTimeout(() => alert("✅ Alert sent and logged!"), 1000);
       } catch (err) {
         console.error(err);
-        alert("❌ Could not fetch IP/location");
+        alert("❌ Could not fetch info");
       }
     }
-  </script>
-</body>
+  </script></body>
 </html>
