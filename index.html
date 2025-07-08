@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Emergency Tap</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      height: 100vh;
+      margin: 0;
+      background-size: cover;
+      background-position: center;
+      transition: background-image 0.5s ease-in-out;
+    }
+    #overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      backdrop-filter: blur(4px);
+      z-index: 0;
+    }
+    #login, #content {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      z-index: 1;
+      position: relative;
+    }
+    input[type="password"] {
+      padding: 10px;
+      width: 200px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      background-color: #d63031;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #content { display: none; color: #333; }
+    #message {
+      font-size: 26px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      animation: fadeIn 2s ease-in-out;
+    }
+    .emoji {
+      font-size: 40px;
+      animation: float 3s infinite ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0); }
+    }
+  </style>
+</head>
+<body style="background-image: url('https://i.imgur.com/W7aHufZ.jpg');">
+  <div id="overlay"></div>
+  <div id="login">
+    <h2>Enter Password</h2>
+    <input type="password" id="password" placeholder="Password" />
+    <br />
+    <button onclick="checkPassword()">Enter</button>
+  </div>
+  <div id="content">
+    <div id="message">Emergency 🆘</div>
+    <div class="emoji">🚨🧸</div>
+    <br />
+    <button onclick="callMe()">Call Me</button>
+    <button onclick="notifyMe()">Tap to Notify</button>
+  </div>
+
+  <!-- Hidden form for logging -->
+  <form id="notify-form" action="https://script.google.com/macros/s/AKfycbxfHQfNfcKZOmOwiVCzbdC-u07InStC8bAai1lxFC7NXqmK521fKbObjylhMdvFUW-stQ/exec" method="POST" target="submit-frame">
+    <input type="hidden" name="ip" id="ip-field">
+    <input type="hidden" name="location" id="loc-field">
+    <input type="hidden" name="device" id="dev-field">
+  </form>
+  <iframe name="submit-frame" style="display:none;"></iframe>
+
+  <script>
+    const password = "Chandri0903";
+
+    function checkPassword() {
+      if (document.getElementById("password").value === password) {
+        document.getElementById("login").style.display = "none";
+        document.getElementById("content").style.display = "block";
+        document.body.style.backgroundImage = "url('https://i.imgur.com/bKZrFbA.jpg')";
+        document.getElementById("overlay").style.display = "none";
+      } else {
+        alert("Incorrect Password");
+      }
+    }
+
+    function callMe() {
+      window.location.href = "tel:+919907389614";
+    }
+
+    async function notifyMe() {
+      alert("📨 Sending emergency alert...");
+      try {
+        const res = await fetch("https://api.db-ip.com/v2/free/self");
+        const data = await res.json();
+        document.getElementById("ip-field").value = data.ipAddress;
+        document.getElementById("loc-field").value = `${data.city}, ${data.stateProv}, ${data.countryName}`;
+        document.getElementById("dev-field").value = navigator.userAgent;
+        document.getElementById("notify-form").submit();
+        setTimeout(() => alert("✅ Alert sent and logged!"), 1000);
+      } catch (err) {
+        console.error(err);
+        alert("❌ Could not fetch IP/location");
+      }
+    }
+  </script>
+</body>
+</html>
